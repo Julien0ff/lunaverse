@@ -12,7 +12,7 @@ const GROUPS = [
 ]
 
 const ROLES_BY_GROUP = {
-  serveur: ['Fondateur', 'Co-Fondateur', 'Haute Administration', 'Administrateur', 'Responsable', 'Modérateur', 'Helper', 'Développeur', 'Graphiste', 'Community Manager', 'Rédacteur'],
+  serveur: ['Fondateur', 'Co-Fondateur', 'Haute Administration', 'Administrateur', 'Responsable', 'Modérateur', 'Secrétaire', 'Helper', 'Développeur', 'Graphiste', 'Community Manager', 'Rédacteur'],
   rp: ['Directeur', 'Proviseur', 'CPE', 'Professeur', 'Surveillant'],
 }
 

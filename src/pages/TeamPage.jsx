@@ -14,7 +14,7 @@ const GROUP_ORDER = [
 
 // Role hierarchy within each group (display order)
 const ROLE_HIERARCHY = {
-  serveur: ['Fondateur', 'Co-Fondateur', 'Haute Administration', 'Administrateur', 'Responsable', 'Modérateur', 'Helper', 'Développeur', 'Graphiste', 'Community Manager', 'Rédacteur'],
+  serveur: ['Fondateur', 'Co-Fondateur', 'Haute Administration', 'Administrateur', 'Responsable', 'Modérateur', 'Secrétaire', 'Helper', 'Développeur', 'Graphiste', 'Community Manager', 'Rédacteur'],
   rp: ['Directeur', 'Proviseur', 'CPE', 'Professeur', 'Surveillant'],
 }
 
