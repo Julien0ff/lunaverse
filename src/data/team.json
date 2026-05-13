@@ -1,0 +1,50 @@
+[
+    {
+        "pseudo": "the._foxy",
+        "displayName": "🦊・𝐅𝐨𝐱𝐲",
+        "discordId": "1064801165201641592",
+        "avatarUrl": "https://cdn.discordapp.com/avatars/1064801165201641592/565e6e66035db99817059c69b8b0af1c.webp?size=256",
+        "bannerUrl": "",
+        "group": "serveur",
+        "role": "Fondateur",
+        "description": "Le dictateur c'est moi (en gentil) ^^ !",
+        "id": "786fbde8-577e-4cb7-9034-300bf039623f",
+        "createdAt": 1778709009627
+    },
+    {
+        "pseudo": "noegg_2",
+        "displayName": "Principal・M. Vandame C.",
+        "discordId": "1294637757750054932",
+        "avatarUrl": "https://cdn.discordapp.com/avatars/1294637757750054932/0ca0e54133f83ec996861f3fdcd7bc92.webp?size=256",
+        "bannerUrl": "",
+        "group": "serveur",
+        "role": "Co-Fondateur",
+        "description": "Principal du School RP",
+        "id": "afa25620-17b3-477d-b5a7-50187d64736a",
+        "createdAt": 1778711594379
+    },
+    {
+        "pseudo": "pardek",
+        "displayName": "Pardek",
+        "discordId": "523103713460748308",
+        "avatarUrl": "https://cdn.discordapp.com/guilds/1216443076168515724/users/523103713460748308/avatars/7e39790373a6c8cea39e4d9d3a898611.png?size=512",
+        "bannerUrl": "",
+        "group": "serveur",
+        "role": "Haute Administration",
+        "description": "",
+        "id": "9a7bc1cf-47c4-4547-8e89-48e8926f72cc",
+        "createdAt": 1778711822656
+    },
+    {
+        "pseudo": "pylotk",
+        "displayName": "M. Remacci H.",
+        "discordId": "1348284567710204080",
+        "avatarUrl": "https://cdn.discordapp.com/avatars/1348284567710204080/e034fd29175cfb33c5a3c72480e75dbb.png?size=512",
+        "bannerUrl": "",
+        "group": "serveur",
+        "role": "Haute Administration",
+        "description": "",
+        "id": "3fe45655-db4f-4b45-b04e-4b50c55c7c5b",
+        "createdAt": 1778711924324
+    }
+]
