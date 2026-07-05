@@ -632,7 +632,7 @@ function TestimonialsSection() {
 
   return (
     <section style={{
-      padding: '4rem 1.5rem',
+      padding: '1rem 1.5rem 6rem',
       maxWidth: '1100px',
       margin: '0 auto',
     }}>
