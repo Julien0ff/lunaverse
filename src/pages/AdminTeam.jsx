@@ -15,6 +15,8 @@ export default function AdminTeam({ onBack }) {
   // Avis state
   const [avisList, setAvisList] = useState([])
   const [newAvis, setNewAvis] = useState({ discordId: '', authorName: '', authorAvatar: '', content: '' })
+  const [manualAvisMode, setManualAvisMode] = useState(false)
+  const [avisSearchLoading, setAvisSearchLoading] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -107,10 +109,32 @@ export default function AdminTeam({ onBack }) {
         createdAt: Date.now()
       })
       setNewAvis({ discordId: '', authorName: '', authorAvatar: '', content: '' })
+      setManualAvisMode(false)
       fetchData()
     } catch (e) {
       alert("Erreur lors de l'ajout de l'avis : " + e.message)
     }
+  }
+
+  const handleAvisSearch = async () => {
+    if (!newAvis.discordId.trim()) return
+    setAvisSearchLoading(true)
+    try {
+      const res = await fetch(`/api/discord-user?id=${newAvis.discordId.trim()}`)
+      if (!res.ok) throw new Error('Introuvable')
+      const data = await res.json()
+      
+      setNewAvis(prev => ({
+        ...prev,
+        authorName: data.global_name || data.username,
+        authorAvatar: data.avatar ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.webp?size=256` : ''
+      }))
+      setManualAvisMode(true)
+    } catch (e) {
+      alert("Membre introuvable via l'API. Vous pouvez remplir les informations manuellement.")
+      setManualAvisMode(true)
+    }
+    setAvisSearchLoading(false)
   }
 
   const handleDeleteAvis = async (avisId) => {
@@ -246,29 +270,63 @@ export default function AdminTeam({ onBack }) {
             marginBottom: '2rem', padding: '1.5rem', background: 'rgba(10, 19, 64, 0.5)',
             border: '1px solid rgba(120,140,255,0.15)', borderRadius: 'var(--radius-lg)'
           }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Pseudo</label>
-                <input type="text" value={newAvis.authorName} onChange={e => setNewAvis({...newAvis, authorName: e.target.value})} placeholder="Pseudo du membre" style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'flex-end' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>ID Discord du membre</label>
+                <input type="text" value={newAvis.discordId} onChange={e => setNewAvis({...newAvis, discordId: e.target.value})} placeholder="Ex: 123456789012345678" style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
               </div>
-              <div>
-                <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>ID Discord (Optionnel)</label>
-                <input type="text" value={newAvis.discordId} onChange={e => setNewAvis({...newAvis, discordId: e.target.value})} placeholder="Ex: 123456789..." style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
-              </div>
+              <button 
+                className="btn-primary" 
+                onClick={handleAvisSearch} 
+                disabled={!newAvis.discordId.trim() || avisSearchLoading}
+                style={{ padding: '0.65rem 1.5rem', opacity: (!newAvis.discordId.trim() || avisSearchLoading) ? 0.5 : 1 }}
+              >
+                {avisSearchLoading ? 'Recherche...' : 'Rechercher'}
+              </button>
             </div>
             
-            <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Lien de l'avatar (Optionnel)</label>
-            <input type="text" value={newAvis.authorAvatar} onChange={e => setNewAvis({...newAvis, authorAvatar: e.target.value})} placeholder="https://cdn.discordapp.com/..." style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px', marginBottom: '1rem' }} />
+            {(!manualAvisMode && !newAvis.authorName) && (
+              <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+                <button 
+                  onClick={() => setManualAvisMode(true)}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.8rem', textDecoration: 'underline', cursor: 'pointer' }}
+                >
+                  Ou saisir manuellement
+                </button>
+              </div>
+            )}
 
-            <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Contenu de l'avis</label>
-            <textarea 
-              value={newAvis.content} 
-              onChange={e => setNewAvis({...newAvis, content: e.target.value})} 
-              rows={3}
-              placeholder="Que pense-t-il du serveur ?"
-              style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px', marginBottom: '1rem' }}
-            />
-            <button className="btn-primary" onClick={handleAddAvis} style={{ padding: '0.5rem 1.5rem' }}>Ajouter l'avis</button>
+            {manualAvisMode && (
+              <div style={{ animation: 'fade-in 300ms ease both' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Pseudo</label>
+                    <input type="text" value={newAvis.authorName} onChange={e => setNewAvis({...newAvis, authorName: e.target.value})} placeholder="Pseudo du membre" style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Lien de l'avatar (Optionnel)</label>
+                    <input type="text" value={newAvis.authorAvatar} onChange={e => setNewAvis({...newAvis, authorAvatar: e.target.value})} placeholder="https://cdn.discordapp.com/..." style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
+                  </div>
+                </div>
+
+                {newAvis.authorAvatar && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem', background: 'rgba(120,140,255,0.06)', borderRadius: '8px', marginBottom: '1rem' }}>
+                    <img src={newAvis.authorAvatar} alt="Aperçu" style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
+                    <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Aperçu du profil : <strong>{newAvis.authorName}</strong></span>
+                  </div>
+                )}
+
+                <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Contenu de l'avis</label>
+                <textarea 
+                  value={newAvis.content} 
+                  onChange={e => setNewAvis({...newAvis, content: e.target.value})} 
+                  rows={3}
+                  placeholder="Que pense-t-il du serveur ?"
+                  style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px', marginBottom: '1rem', resize: 'vertical' }}
+                />
+                <button className="btn-primary" onClick={handleAddAvis} style={{ padding: '0.5rem 1.5rem' }}>Publier l'avis</button>
+              </div>
+            )}
           </div>
 
           <h2 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>Avis publiés ({avisList.length})</h2>
