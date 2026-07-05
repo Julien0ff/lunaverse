@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { db } from '../lib/firebase.js'
+import { collection, getDocs } from 'firebase/firestore'
 
 /* ============================================================
    PROJECTS — with logo images for LEmedia, LunaFM, Luna School
