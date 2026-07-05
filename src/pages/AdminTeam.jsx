@@ -14,7 +14,7 @@ export default function AdminTeam({ onBack }) {
 
   // Avis state
   const [avisList, setAvisList] = useState([])
-  const [newAvis, setNewAvis] = useState({ discordId: '', authorName: '', authorAvatar: '', content: '' })
+  const [newAvis, setNewAvis] = useState({ discordId: '', authorName: '', authorAvatar: '', content: '', authorRole: '' })
   const [manualAvisMode, setManualAvisMode] = useState(false)
   const [avisSearchLoading, setAvisSearchLoading] = useState(false)
 
@@ -104,11 +104,12 @@ export default function AdminTeam({ onBack }) {
       await addDoc(collection(db, 'avis'), {
         discordId: newAvis.discordId,
         authorName: newAvis.authorName,
+        authorRole: newAvis.authorRole || 'Membre',
         authorAvatar: finalAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png',
         content: newAvis.content,
         createdAt: Date.now()
       })
-      setNewAvis({ discordId: '', authorName: '', authorAvatar: '', content: '' })
+      setNewAvis({ discordId: '', authorName: '', authorAvatar: '', content: '', authorRole: '' })
       setManualAvisMode(false)
       fetchData()
     } catch (e) {
@@ -127,7 +128,8 @@ export default function AdminTeam({ onBack }) {
       setNewAvis(prev => ({
         ...prev,
         authorName: data.global_name || data.username,
-        authorAvatar: data.avatar ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.webp?size=256` : ''
+        authorAvatar: data.avatar ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.webp?size=256` : '',
+        authorRole: data.highestRoleName || 'Membre'
       }))
       setManualAvisMode(true)
     } catch (e) {
@@ -304,10 +306,13 @@ export default function AdminTeam({ onBack }) {
                     <input type="text" value={newAvis.authorName} onChange={e => setNewAvis({...newAvis, authorName: e.target.value})} placeholder="Pseudo du membre" style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Lien de l'avatar (Optionnel)</label>
-                    <input type="text" value={newAvis.authorAvatar} onChange={e => setNewAvis({...newAvis, authorAvatar: e.target.value})} placeholder="https://cdn.discordapp.com/..." style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
+                    <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Rôle affiché</label>
+                    <input type="text" value={newAvis.authorRole} onChange={e => setNewAvis({...newAvis, authorRole: e.target.value})} placeholder="Ex: Administrateur, Membre..." style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
                   </div>
                 </div>
+
+                <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Lien de l'avatar (Optionnel)</label>
+                <input type="text" value={newAvis.authorAvatar} onChange={e => setNewAvis({...newAvis, authorAvatar: e.target.value})} placeholder="https://cdn.discordapp.com/..." style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px', marginBottom: '1rem' }} />
 
                 {newAvis.authorAvatar && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem', background: 'rgba(120,140,255,0.06)', borderRadius: '8px', marginBottom: '1rem' }}>

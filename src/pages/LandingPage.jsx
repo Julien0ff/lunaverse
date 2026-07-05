@@ -808,7 +808,7 @@ function TestimonialCard({ testimonial, index }) {
             {testimonial.authorName}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-            Membre
+            {testimonial.authorRole || 'Membre'}
           </div>
         </div>
       </div>
