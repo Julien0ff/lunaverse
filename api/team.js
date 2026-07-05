@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import { db } from '../src/lib/firebase.js'
+import { doc, getDoc } from 'firebase/firestore'
 
 export default async function handler(req, res) {
   const token = process.env.DISCORD_BOT_TOKEN
@@ -28,15 +28,16 @@ export default async function handler(req, res) {
     const roleMap = {}
     rolesData.forEach(r => { roleMap[r.id] = r })
 
-    // 3. Read manual descriptions
+    // 3. Read manual descriptions from Firebase
     let descriptions = {}
     try {
-      // Vercel localise les fichiers de src dans process.cwd()
-      const dataPath = path.join(process.cwd(), 'src', 'data', 'team_descriptions.json')
-      const fileContent = fs.readFileSync(dataPath, 'utf8')
-      descriptions = JSON.parse(fileContent)
+      const docRef = doc(db, 'team', 'data')
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        descriptions = docSnap.data()
+      }
     } catch(e) {
-      console.error('No descriptions file found or error reading it', e)
+      console.error('No descriptions found in Firebase or error reading it', e)
     }
 
     // 4. Define staff roles priority (ordered)

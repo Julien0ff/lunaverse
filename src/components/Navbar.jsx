@@ -42,6 +42,7 @@ export default function Navbar({
   onNavigatePortal,
   onNavigateTeam,
   onNavigateStory,
+  onNavigateIdeas,
   currentPage,
   audio,
 }) {
@@ -130,6 +131,9 @@ export default function Navbar({
 
         {/* Center: Nav links (Desktop only) */}
         <div className="desktop-only" style={{
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(-50%)',
           display: 'flex',
           alignItems: 'center',
           gap: '0.25rem',
@@ -153,6 +157,12 @@ export default function Navbar({
             onClick={onNavigateStory}
             label="Notre Histoire"
             active={currentPage === 'our-story'}
+          />
+          {/* Boîte à idées link */}
+          <NavButton
+            onClick={onNavigateIdeas}
+            label="Boîte à idées"
+            active={currentPage === 'ideas'}
           />
         </div>
 
@@ -341,6 +351,12 @@ export default function Navbar({
               onClick={() => { onNavigateStory(); setMobileMenuOpen(false); }}
               label="Notre Histoire"
               active={currentPage === 'our-story'}
+              mobile
+            />
+            <NavButton
+              onClick={() => { onNavigateIdeas(); setMobileMenuOpen(false); }}
+              label="Boîte à idées"
+              active={currentPage === 'ideas'}
               mobile
             />
           </div>

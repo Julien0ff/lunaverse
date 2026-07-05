@@ -2,9 +2,8 @@
   "config": {
     "staffRoles": [
       "ID_DU_ROLE_FONDATEUR",
+      "ID_DU_ROLE_HAUTE_ADMINISTRATION",
       "ID_DU_ROLE_ADMINISTRATEUR",
-      "ID_DU_ROLE_DEVELOPPEUR",
-      "ID_DU_ROLE_RESPONSABLE",
       "ID_DU_ROLE_MODERATEUR"
     ]
   },
