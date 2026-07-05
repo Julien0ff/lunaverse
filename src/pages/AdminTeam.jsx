@@ -12,8 +12,9 @@ export default function AdminTeam({ onBack }) {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState({ description: '', role: '', roleColor: '', forceDisplay: false })
 
-  // Ideas state
-  const [ideas, setIdeas] = useState([])
+  // Avis state
+  const [avisList, setAvisList] = useState([])
+  const [newAvis, setNewAvis] = useState({ discordId: '', authorName: '', authorAvatar: '', content: '' })
 
   useEffect(() => {
     fetchData()
@@ -41,13 +42,13 @@ export default function AdminTeam({ onBack }) {
         setDescriptionsData(initial)
       }
 
-      // Fetch ideas
-      const ideasSnapshot = await getDocs(collection(db, 'ideas'))
-      const ideasList = []
-      ideasSnapshot.forEach(doc => ideasList.push({ id: doc.id, ...doc.data() }))
+      // Fetch avis
+      const avisSnapshot = await getDocs(collection(db, 'avis'))
+      const fetchedAvis = []
+      avisSnapshot.forEach(doc => fetchedAvis.push({ id: doc.id, ...doc.data() }))
       // Sort by latest
-      ideasList.sort((a, b) => b.createdAt - a.createdAt)
-      setIdeas(ideasList)
+      fetchedAvis.sort((a, b) => b.createdAt - a.createdAt)
+      setAvisList(fetchedAvis)
 
     } catch (e) {
       console.error(e)
@@ -87,11 +88,36 @@ export default function AdminTeam({ onBack }) {
     }
   }
 
-  const handleDeleteIdea = async (ideaId) => {
-    if (!window.confirm("Supprimer cette idée ?")) return
+  const handleAddAvis = async () => {
+    if (!newAvis.authorName.trim() || !newAvis.content.trim()) return alert("Nom et contenu requis.")
+    
+    // Si l'admin a mis un discordId mais pas d'avatar, on met un placeholder
+    let finalAvatar = newAvis.authorAvatar
+    if (!finalAvatar && newAvis.discordId) {
+      // Just a simple heuristic if no avatar link is provided
+      finalAvatar = `https://cdn.discordapp.com/embed/avatars/${Math.floor(Math.random()*5)}.png`
+    }
+
     try {
-      await deleteDoc(doc(db, 'ideas', ideaId))
-      setIdeas(ideas.filter(i => i.id !== ideaId))
+      await addDoc(collection(db, 'avis'), {
+        discordId: newAvis.discordId,
+        authorName: newAvis.authorName,
+        authorAvatar: finalAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png',
+        content: newAvis.content,
+        createdAt: Date.now()
+      })
+      setNewAvis({ discordId: '', authorName: '', authorAvatar: '', content: '' })
+      fetchData()
+    } catch (e) {
+      alert("Erreur lors de l'ajout de l'avis : " + e.message)
+    }
+  }
+
+  const handleDeleteAvis = async (avisId) => {
+    if (!window.confirm("Supprimer cet avis ?")) return
+    try {
+      await deleteDoc(doc(db, 'avis', avisId))
+      setAvisList(avisList.filter(i => i.id !== avisId))
     } catch (e) {
       alert("Erreur : " + e.message)
     }
@@ -142,15 +168,15 @@ export default function AdminTeam({ onBack }) {
           Gestion de l'équipe
         </button>
         <button
-          onClick={() => setActiveTab('idees')}
+          onClick={() => setActiveTab('avis')}
           style={{
             padding: '0.75rem 1.5rem', background: 'transparent', border: 'none',
-            color: activeTab === 'idees' ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
-            borderBottom: activeTab === 'idees' ? '2px solid var(--color-accent-purple)' : '2px solid transparent',
+            color: activeTab === 'avis' ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+            borderBottom: activeTab === 'avis' ? '2px solid var(--color-accent-purple)' : '2px solid transparent',
             fontWeight: 600, cursor: 'pointer', transition: 'all 200ms'
           }}
         >
-          Boîte à Idées
+          Gestion des Avis
         </button>
       </div>
 
@@ -215,24 +241,54 @@ export default function AdminTeam({ onBack }) {
         </div>
       ) : (
         <div>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>Idées des utilisateurs ({ideas.length})</h2>
-          {ideas.length === 0 && <p style={{ color: 'var(--color-text-muted)' }}>Aucune idée pour le moment.</p>}
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>Ajouter un avis</h2>
+          <div style={{
+            marginBottom: '2rem', padding: '1.5rem', background: 'rgba(10, 19, 64, 0.5)',
+            border: '1px solid rgba(120,140,255,0.15)', borderRadius: 'var(--radius-lg)'
+          }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div>
+                <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Pseudo</label>
+                <input type="text" value={newAvis.authorName} onChange={e => setNewAvis({...newAvis, authorName: e.target.value})} placeholder="Pseudo du membre" style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>ID Discord (Optionnel)</label>
+                <input type="text" value={newAvis.discordId} onChange={e => setNewAvis({...newAvis, discordId: e.target.value})} placeholder="Ex: 123456789..." style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px' }} />
+              </div>
+            </div>
+            
+            <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Lien de l'avatar (Optionnel)</label>
+            <input type="text" value={newAvis.authorAvatar} onChange={e => setNewAvis({...newAvis, authorAvatar: e.target.value})} placeholder="https://cdn.discordapp.com/..." style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px', marginBottom: '1rem' }} />
+
+            <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Contenu de l'avis</label>
+            <textarea 
+              value={newAvis.content} 
+              onChange={e => setNewAvis({...newAvis, content: e.target.value})} 
+              rows={3}
+              placeholder="Que pense-t-il du serveur ?"
+              style={{ width: '100%', padding: '0.65rem', background: 'rgba(120,140,255,0.06)', border: '1px solid rgba(120,140,255,0.1)', color: '#fff', borderRadius: '4px', marginBottom: '1rem' }}
+            />
+            <button className="btn-primary" onClick={handleAddAvis} style={{ padding: '0.5rem 1.5rem' }}>Ajouter l'avis</button>
+          </div>
+
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>Avis publiés ({avisList.length})</h2>
+          {avisList.length === 0 && <p style={{ color: 'var(--color-text-muted)' }}>Aucun avis pour le moment.</p>}
           <div style={{ display: 'grid', gap: '1rem' }}>
-            {ideas.map(idea => (
-              <div key={idea.id} style={{
+            {avisList.map(avis => (
+              <div key={avis.id} style={{
                 background: 'rgba(10, 19, 64, 0.4)', border: '1px solid rgba(120,140,255,0.1)',
                 borderRadius: '8px', padding: '1.5rem', position: 'relative'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                  <img src={idea.authorAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png'} alt="avatar" style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
+                  <img src={avis.authorAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png'} alt="avatar" style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
                   <div>
-                    <div style={{ fontWeight: 600 }}>{idea.authorName}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{new Date(idea.createdAt).toLocaleString()}</div>
+                    <div style={{ fontWeight: 600 }}>{avis.authorName}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{new Date(avis.createdAt).toLocaleString()}</div>
                   </div>
                 </div>
-                <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{idea.content}</p>
+                <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{avis.content}</p>
                 <button 
-                  onClick={() => handleDeleteIdea(idea.id)}
+                  onClick={() => handleDeleteAvis(avis.id)}
                   style={{
                     position: 'absolute', top: '1rem', right: '1rem',
                     background: 'transparent', border: 'none', color: 'var(--color-accent-rose)', cursor: 'pointer',

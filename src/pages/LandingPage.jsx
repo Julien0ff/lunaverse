@@ -610,28 +610,26 @@ function StatBox({ title, value, color }) {
 /* ==============================
    TESTIMONIALS SECTION
    ============================== */
-const TESTIMONIALS = [
-  {
-    author: "Alex",
-    role: "Joueur Minecraft",
-    text: "La communauté est super accueillante et le serveur Minecraft est l'un des meilleurs sur lesquels j'ai pu jouer !",
-    avatarUrl: null
-  },
-  {
-    author: "Sarah",
-    role: "Professeure RP",
-    text: "Luna School m'a permis de découvrir le RP éducatif sous un nouveau jour. L'équipe est à l'écoute et très pro.",
-    avatarUrl: null
-  },
-  {
-    author: "Marc",
-    role: "Auditeur LunaFM",
-    text: "Les soirées débats sur la radio sont incroyables, on ne voit pas le temps passer. Une vraie pépite.",
-    avatarUrl: null
-  }
-]
-
 function TestimonialsSection() {
+  const [testimonials, setTestimonials] = useState([])
+
+  useEffect(() => {
+    const fetchAvis = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'avis'))
+        const avisList = []
+        snap.forEach(doc => avisList.push({ id: doc.id, ...doc.data() }))
+        avisList.sort((a, b) => b.createdAt - a.createdAt)
+        setTestimonials(avisList)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    fetchAvis()
+  }, [])
+
+  if (testimonials.length === 0) return null
+
   return (
     <section style={{
       padding: '4rem 1.5rem',
@@ -654,8 +652,8 @@ function TestimonialsSection() {
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
         gap: '1.5rem',
       }}>
-        {TESTIMONIALS.map((t, idx) => (
-          <TestimonialCard key={idx} testimonial={t} index={idx} />
+        {testimonials.map((t, idx) => (
+          <TestimonialCard key={t.id} testimonial={t} index={idx} />
         ))}
       </div>
     </section>
@@ -698,30 +696,39 @@ function TestimonialCard({ testimonial, index }) {
         lineHeight: 1.6,
         marginBottom: '1.5rem',
         fontStyle: 'italic',
+        whiteSpace: 'pre-wrap',
       }}>
-        "{testimonial.text}"
+        "{testimonial.content}"
       </p>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--color-accent-purple), var(--color-accent-blue))',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          fontWeight: 700,
-          fontSize: '0.9rem',
-        }}>
-          {testimonial.author.charAt(0)}
-        </div>
+        {testimonial.authorAvatar ? (
+          <img 
+            src={testimonial.authorAvatar} 
+            alt={testimonial.authorName} 
+            style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} 
+          />
+        ) : (
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--color-accent-purple), var(--color-accent-blue))',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+          }}>
+            {testimonial.authorName?.charAt(0) || '?'}
+          </div>
+        )}
         <div>
           <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-            {testimonial.author}
+            {testimonial.authorName}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-            {testimonial.role}
+            Membre
           </div>
         </div>
       </div>
