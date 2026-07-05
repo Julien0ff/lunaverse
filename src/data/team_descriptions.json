@@ -2,15 +2,18 @@
   "config": {
     "staffRoles": [
       "ID_DU_ROLE_FONDATEUR",
-      "ID_DU_ROLE_HAUTE_ADMINISTRATION",
-      "ID_DU_ROLE_ADMINISTRATEUR",
-      "ID_DU_ROLE_MODERATEUR"
+      "1288211168321732608",
+      "1419755411690750053",
+      "1317551675048988705"
     ]
   },
   "ID_DISCORD_DU_MEMBRE": {
     "description": "Fondateur de LunaVerse, passionné par la création de communautés et de serveurs de jeu.",
     "links": [
-      { "label": "Twitter", "url": "https://twitter.com/example" }
+      {
+        "label": "Twitter",
+        "url": "https://twitter.com/example"
+      }
     ]
   },
   "AUTRE_ID_DISCORD": {
