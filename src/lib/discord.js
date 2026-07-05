@@ -10,7 +10,7 @@
    5. Copy the Client ID and paste it below
    ============================================================ */
 
-export const DISCORD_CLIENT_ID = '1504077690918010972' // L'ID de ton application Discord
+export const DISCORD_CLIENT_ID = '1523284375406510200' // L'ID de ton application Discord
 const REDIRECT_URI = window.location.origin // L'URL de redirection dynamique
 
 // Guild ID and Role IDs
