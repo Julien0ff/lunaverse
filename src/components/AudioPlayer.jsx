@@ -37,7 +37,7 @@ export default function useAudioPlayer(activePage) {
   const [hasInteracted, setHasInteracted] = useState(false)
 
   // Pages where music should play
-  const shouldPlay = activePage === 'landing' || activePage === 'team'
+  const shouldPlay = activePage === 'landing' || activePage === 'team' || activePage === 'our-story'
 
   // Create audio element once
   useEffect(() => {
