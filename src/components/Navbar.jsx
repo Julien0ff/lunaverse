@@ -41,6 +41,7 @@ export default function Navbar({
   onNavigateHome,
   onNavigatePortal,
   onNavigateTeam,
+  onNavigateStory,
   currentPage,
   audio,
 }) {
@@ -146,6 +147,12 @@ export default function Navbar({
             onClick={onNavigateTeam}
             label="Notre Équipe"
             active={currentPage === 'team'}
+          />
+          {/* Notre Histoire link */}
+          <NavButton
+            onClick={onNavigateStory}
+            label="Notre Histoire"
+            active={currentPage === 'our-story'}
           />
         </div>
 
@@ -328,6 +335,12 @@ export default function Navbar({
               onClick={() => { onNavigateTeam(); setMobileMenuOpen(false); }}
               label="Notre Équipe"
               active={currentPage === 'team'}
+              mobile
+            />
+            <NavButton
+              onClick={() => { onNavigateStory(); setMobileMenuOpen(false); }}
+              label="Notre Histoire"
+              active={currentPage === 'our-story'}
               mobile
             />
           </div>

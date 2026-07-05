@@ -1,0 +1,21 @@
+{
+  "config": {
+    "staffRoles": [
+      "ID_DU_ROLE_FONDATEUR",
+      "ID_DU_ROLE_ADMINISTRATEUR",
+      "ID_DU_ROLE_DEVELOPPEUR",
+      "ID_DU_ROLE_RESPONSABLE",
+      "ID_DU_ROLE_MODERATEUR"
+    ]
+  },
+  "ID_DISCORD_DU_MEMBRE": {
+    "description": "Fondateur de LunaVerse, passionné par la création de communautés et de serveurs de jeu.",
+    "links": [
+      { "label": "Twitter", "url": "https://twitter.com/example" }
+    ]
+  },
+  "AUTRE_ID_DISCORD": {
+    "description": "Responsable du projet Minecraft. Toujours prêt à aider !",
+    "forceDisplay": true
+  }
+}

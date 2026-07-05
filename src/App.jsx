@@ -3,6 +3,7 @@ import LandingPage from './pages/LandingPage.jsx'
 import Portal from './pages/Portal.jsx'
 import TeamPage from './pages/TeamPage.jsx'
 import AdminTeam from './pages/AdminTeam.jsx'
+import OurStory from './pages/OurStory.jsx'
 import Navbar from './components/Navbar.jsx'
 import LoginModal from './components/LoginModal.jsx'
 import BackgroundScene from './components/BackgroundScene.jsx'
@@ -113,6 +114,10 @@ export default function App() {
     setCurrentPage('team')
   }, [])
 
+  const handleNavigateStory = useCallback(() => {
+    setCurrentPage('our-story')
+  }, [])
+
   const handlePortalNavigate = useCallback((action) => {
     if (action === 'admin-team') {
       setCurrentPage('admin-team')
@@ -172,6 +177,7 @@ export default function App() {
         onNavigateHome={handleNavigateHome}
         onNavigatePortal={() => setCurrentPage('portal')}
         onNavigateTeam={handleNavigateTeam}
+        onNavigateStory={handleNavigateStory}
         currentPage={currentPage}
         audio={audio}
       />
@@ -186,6 +192,10 @@ export default function App() {
 
       {currentPage === 'team' && (
         <TeamPage />
+      )}
+
+      {currentPage === 'our-story' && (
+        <OurStory />
       )}
 
       {currentPage === 'admin-team' && user?.role === 'admin' && (

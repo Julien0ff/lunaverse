@@ -3,60 +3,41 @@ import { getDiscordAvatarUrl, getDiscordBannerUrl } from '../lib/discord.js'
 
 /* ============================================================
    TeamPage — Notre Équipe (public page)
-   Data sourced from localStorage (managed via AdminTeam)
+   Data sourced from Vercel API (/api/team)
    ============================================================ */
-
-// Team groups with their display order
-const GROUP_ORDER = [
-  { key: 'serveur', label: 'Équipe Serveur', color: '#4F7AFF', gradient: 'linear-gradient(135deg, #1e40af, #4F7AFF)' },
-  { key: 'rp', label: 'Équipe RP', color: '#10B981', gradient: 'linear-gradient(135deg, #065f46, #10B981)' },
-]
-
-// Role hierarchy within each group (display order)
-const ROLE_HIERARCHY = {
-  serveur: ['Fondateur', 'Co-Fondateur', 'Haute Administration', 'Administrateur', 'Responsable', 'Modérateur', 'Secrétaire', 'Helper', 'Développeur', 'Graphiste', 'Community Manager', 'Rédacteur'],
-  rp: ['Directeur', 'Proviseur', 'CPE', 'Professeur', 'Surveillant'],
-}
-
-import initialTeamData from '../data/team.json'
-
-function loadTeamData() {
-  try {
-    const raw = localStorage.getItem('lunaverse_team')
-    if (raw) return JSON.parse(raw)
-    return initialTeamData || []
-  } catch {
-    return initialTeamData || []
-  }
-}
 
 export default function TeamPage() {
   const [team, setTeam] = useState([])
   const [loaded, setLoaded] = useState(false)
+  const [loadingError, setLoadingError] = useState(false)
 
   useEffect(() => {
-    setTeam(loadTeamData())
-    const t = setTimeout(() => setLoaded(true), 100)
-    return () => clearTimeout(t)
+    const fetchTeam = async () => {
+      try {
+        const res = await fetch('/api/team')
+        if (!res.ok) throw new Error('Failed to fetch team')
+        const data = await res.json()
+        setTeam(data)
+      } catch (err) {
+        console.error('Error fetching team:', err)
+        setLoadingError(true)
+      } finally {
+        setTimeout(() => setLoaded(true), 100)
+      }
+    }
+    fetchTeam()
   }, [])
 
-  // Group members by category
-  const grouped = {}
+  // Group members by role
+  const groupedByRole = {}
   for (const member of team) {
-    const grp = member.group || 'serveur'
-    if (!grouped[grp]) grouped[grp] = []
-    grouped[grp].push(member)
+    const r = member.role || 'Staff'
+    if (!groupedByRole[r]) groupedByRole[r] = []
+    groupedByRole[r].push(member)
   }
 
-  // Sort members within each group by role hierarchy
-  for (const [grp, members] of Object.entries(grouped)) {
-    const hierarchy = ROLE_HIERARCHY[grp] || []
-    members.sort((a, b) => {
-      const aIdx = hierarchy.indexOf(a.role)
-      const bIdx = hierarchy.indexOf(b.role)
-      return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx)
-    })
-  }
+  // Preserve the order returned by the API
+  const sortedRoles = [...new Set(team.map(m => m.role))]
 
   return (
     <div style={{
@@ -109,7 +90,11 @@ export default function TeamPage() {
       </div>
 
       {/* Team groups */}
-      {team.length === 0 ? (
+      {loadingError ? (
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--color-accent-rose)' }}>
+          Erreur lors du chargement de l'équipe. Veuillez réessayer plus tard.
+        </div>
+      ) : team.length === 0 && loaded ? (
         <div style={{
           textAlign: 'center',
           padding: 'var(--space-3xl) 1rem',
@@ -134,27 +119,28 @@ export default function TeamPage() {
             </svg>
           </div>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
-            L'équipe sera bientôt présentée ici.
+            Aucun membre trouvé.
           </p>
         </div>
       ) : (
-        GROUP_ORDER.map((group, groupIdx) => {
-          const groupMembers = grouped[group.key]
-          if (!groupMembers || groupMembers.length === 0) return null
+        sortedRoles.map((role, roleIdx) => {
+          const membersByRole = groupedByRole[role]
+          if (!membersByRole || membersByRole.length === 0) return null
 
-          const hierarchy = ROLE_HIERARCHY[group.key] || []
+          // The color of the first member of the role dictates the role color
+          const roleColor = membersByRole[0].roleColor || '#4F7AFF'
 
           return (
             <div
-              key={group.key}
+              key={role}
               style={{
                 marginBottom: 'var(--space-3xl)',
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? 'translateY(0)' : 'translateY(20px)',
-                transition: `all 600ms cubic-bezier(0.16, 1, 0.3, 1) ${200 + groupIdx * 150}ms`,
+                transition: `all 600ms cubic-bezier(0.16, 1, 0.3, 1) ${200 + roleIdx * 150}ms`,
               }}
             >
-              {/* Group header */}
+              {/* Role header */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -165,8 +151,8 @@ export default function TeamPage() {
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  background: group.color,
-                  boxShadow: `0 0 12px ${group.color}60`,
+                  background: roleColor,
+                  boxShadow: `0 0 12px ${roleColor}60`,
                 }} />
                 <h2 style={{
                   fontSize: '1.5rem',
@@ -175,74 +161,31 @@ export default function TeamPage() {
                   color: 'var(--color-text-primary)',
                   textTransform: 'uppercase',
                 }}>
-                  {group.label}
+                  {role}
                 </h2>
                 <div style={{
                   flex: 1,
                   height: '1px',
-                  background: `linear-gradient(90deg, ${group.color}40, transparent)`,
+                  background: `linear-gradient(90deg, ${roleColor}40, transparent)`,
                 }} />
               </div>
 
-              {/* Role sections */}
-              {hierarchy.map((role, roleIdx) => {
-                const membersByRole = groupMembers.filter(m => m.role === role)
-                if (membersByRole.length === 0) return null
-
-                const isPremium = role === 'Fondateur' || role === 'Co-Fondateur' || role === 'Haute Administration'
-
-                return (
-                  <div key={role} style={{ marginBottom: '3rem' }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      marginBottom: '1.25rem',
-                    }}>
-                      <h3 style={{
-                        fontSize: isPremium ? '0.9rem' : '0.75rem',
-                        fontWeight: isPremium ? 800 : 600,
-                        fontFamily: 'var(--font-mono)',
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        color: isPremium ? group.color : 'var(--color-text-muted)',
-                        padding: '4px 0',
-                        position: 'relative',
-                      }}>
-                        {role}
-                        {isPremium && (
-                          <div style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '2px',
-                            background: group.color,
-                            boxShadow: `0 0 8px ${group.color}80`,
-                          }} />
-                        )}
-                      </h3>
-                    </div>
-
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                      gap: '1.25rem',
-                    }}>
-                      {membersByRole.map((member, memberIdx) => (
-                        <MemberCard
-                          key={member.id}
-                          member={member}
-                          groupColor={group.color}
-                          groupGradient={group.gradient}
-                          delay={roleIdx * 100 + memberIdx * 50}
-                          loaded={loaded}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: '1.25rem',
+              }}>
+                {membersByRole.map((member, memberIdx) => (
+                  <MemberCard
+                    key={member.id}
+                    member={member}
+                    groupColor={member.roleColor}
+                    groupGradient={`linear-gradient(135deg, ${member.roleColor}80, ${member.roleColor})`}
+                    delay={roleIdx * 100 + memberIdx * 50}
+                    loaded={loaded}
+                  />
+                ))}
+              </div>
             </div>
           )
         })
@@ -265,9 +208,7 @@ function MemberCard({ member, groupColor, groupGradient, delay, loaded }) {
     return () => observer.disconnect()
   }, [])
 
-  const avatarUrl = member.avatarUrl || (member.discordId
-    ? getDiscordAvatarUrl(member.discordId, null)
-    : null)
+  const avatarUrl = member.avatarUrl || null
 
   const bannerUrl = member.bannerUrl || null
 
@@ -341,7 +282,7 @@ function MemberCard({ member, groupColor, groupGradient, delay, loaded }) {
               />
             ) : (
               <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>
-                {(member.pseudo || '?').charAt(0).toUpperCase()}
+                {(member.name || '?').charAt(0).toUpperCase()}
               </span>
             )}
           </div>
@@ -349,8 +290,8 @@ function MemberCard({ member, groupColor, groupGradient, delay, loaded }) {
           {/* Info */}
           <div style={{ flex: 1, minWidth: 0, paddingTop: '0.25rem' }}>
             <div style={{
-              fontSize: (member.role === 'Fondateur' || member.role === 'Co-Fondateur' || member.role === 'Haute Administration') ? '1.2rem' : '1.05rem',
-              fontWeight: (member.role === 'Fondateur' || member.role === 'Co-Fondateur' || member.role === 'Haute Administration') ? 800 : 700,
+              fontSize: '1.1rem',
+              fontWeight: 700,
               color: 'var(--color-text-primary)',
               letterSpacing: '-0.01em',
               marginBottom: '0.2rem',
@@ -358,7 +299,7 @@ function MemberCard({ member, groupColor, groupGradient, delay, loaded }) {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
             }}>
-              {member.displayName || member.pseudo || 'Membre'}
+              {member.name || 'Membre'}
             </div>
           {member.description && (
             <p style={{

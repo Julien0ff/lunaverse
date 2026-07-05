@@ -101,7 +101,9 @@ export default function LandingPage({ onJoinClick }) {
   return (
     <div style={{ position: 'relative', zIndex: 'var(--z-base)' }}>
       <HeroSection onJoinClick={onJoinClick} />
+      <StatsSection />
       <ProjectsSection />
+      <TestimonialsSection />
       <FooterSection onJoinClick={onJoinClick} />
     </div>
   )
@@ -265,8 +267,8 @@ function HeroSection({ onJoinClick }) {
       <div style={{
         position: 'absolute',
         bottom: '2rem',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        left: 0,
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -513,6 +515,216 @@ function ProjectCard({ project, index }) {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+/* ==============================
+   STATS SECTION (Live)
+   ============================== */
+function StatsSection() {
+  const [stats, setStats] = useState({ memberCount: '...', onlineCount: '...', activeProjects: '4' })
+  const [visible, setVisible] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/stats')
+        if (res.ok) {
+          const data = await res.json()
+          setStats(data)
+        }
+      } catch (err) {
+        console.error('Failed to fetch stats', err)
+      }
+    }
+    fetchStats()
+
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      { threshold: 0.2 }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <section 
+      ref={ref}
+      style={{
+        padding: '2rem 1.5rem',
+        maxWidth: '900px',
+        margin: '0 auto',
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: '2rem',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'all 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
+    >
+      <StatBox title="Membres Totaux" value={stats.memberCount} color="var(--color-accent-blue)" />
+      <StatBox title="En Ligne" value={stats.onlineCount} color="var(--color-accent-emerald)" />
+      <StatBox title="Projets Actifs" value={stats.activeProjects} color="var(--color-accent-purple)" />
+    </section>
+  )
+}
+
+function StatBox({ title, value, color }) {
+  return (
+    <div style={{
+      background: 'rgba(10, 19, 64, 0.4)',
+      border: '1px solid rgba(120,140,255,0.08)',
+      borderRadius: 'var(--radius-lg)',
+      padding: '1.5rem 2rem',
+      textAlign: 'center',
+      minWidth: '200px',
+      backdropFilter: 'blur(10px)',
+      boxShadow: `0 8px 32px rgba(0,0,0,0.2), inset 0 0 20px ${color}10`,
+    }}>
+      <div style={{
+        fontSize: '2.5rem',
+        fontWeight: 800,
+        color: color,
+        marginBottom: '0.25rem',
+        fontFamily: 'var(--font-mono)',
+        textShadow: `0 0 20px ${color}40`,
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontSize: '0.85rem',
+        color: 'var(--color-text-secondary)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        fontWeight: 600,
+      }}>
+        {title}
+      </div>
+    </div>
+  )
+}
+
+/* ==============================
+   TESTIMONIALS SECTION
+   ============================== */
+const TESTIMONIALS = [
+  {
+    author: "Alex",
+    role: "Joueur Minecraft",
+    text: "La communauté est super accueillante et le serveur Minecraft est l'un des meilleurs sur lesquels j'ai pu jouer !",
+    avatarUrl: null
+  },
+  {
+    author: "Sarah",
+    role: "Professeure RP",
+    text: "Luna School m'a permis de découvrir le RP éducatif sous un nouveau jour. L'équipe est à l'écoute et très pro.",
+    avatarUrl: null
+  },
+  {
+    author: "Marc",
+    role: "Auditeur LunaFM",
+    text: "Les soirées débats sur la radio sont incroyables, on ne voit pas le temps passer. Une vraie pépite.",
+    avatarUrl: null
+  }
+]
+
+function TestimonialsSection() {
+  return (
+    <section style={{
+      padding: '4rem 1.5rem',
+      maxWidth: '1100px',
+      margin: '0 auto',
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h2 style={{
+          fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
+          fontWeight: 700,
+          background: 'linear-gradient(135deg, #E8ECFF, #8B95C9)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}>
+          Ce qu'ils en disent
+        </h2>
+      </div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '1.5rem',
+      }}>
+        {TESTIMONIALS.map((t, idx) => (
+          <TestimonialCard key={idx} testimonial={t} index={idx} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function TestimonialCard({ testimonial, index }) {
+  const [visible, setVisible] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      { threshold: 0.2 }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: `all 600ms cubic-bezier(0.16, 1, 0.3, 1) ${index * 150}ms`,
+        background: 'rgba(10, 19, 64, 0.3)',
+        border: '1px solid rgba(120,140,255,0.08)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '1.5rem',
+        position: 'relative',
+      }}
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style={{ color: 'rgba(120,140,255,0.2)', marginBottom: '1rem' }}>
+        <path d="M14.017 21L16.09 13.232H11.517V3H21.517V13.232L19.444 21H14.017ZM4.5 21L6.573 13.232H2V3H12V13.232L9.927 21H4.5Z" />
+      </svg>
+      <p style={{
+        fontSize: '0.95rem',
+        color: 'var(--color-text-secondary)',
+        lineHeight: 1.6,
+        marginBottom: '1.5rem',
+        fontStyle: 'italic',
+      }}>
+        "{testimonial.text}"
+      </p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--color-accent-purple), var(--color-accent-blue))',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#fff',
+          fontWeight: 700,
+          fontSize: '0.9rem',
+        }}>
+          {testimonial.author.charAt(0)}
+        </div>
+        <div>
+          <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+            {testimonial.author}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+            {testimonial.role}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
