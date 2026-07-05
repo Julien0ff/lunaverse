@@ -615,9 +615,10 @@ function StatBox({ title, value, color }) {
 function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState([])
   const scrollRef = useRef(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
+  const isDragging = useRef(false)
+  const startX = useRef(0)
+  const scrollLeft = useRef(0)
+  const animationFrameId = useRef(null)
 
   useEffect(() => {
     const fetchAvis = async () => {
@@ -634,45 +635,67 @@ function TestimonialsSection() {
     fetchAvis()
   }, [])
 
-  // Auto-scroll
+  // Infinite scroll
   useEffect(() => {
-    if (!scrollRef.current || testimonials.length <= 3) return
-    const interval = setInterval(() => {
-      if (!isDragging && scrollRef.current) {
-        const maxScroll = scrollRef.current.scrollWidth - scrollRef.current.clientWidth
-        if (scrollRef.current.scrollLeft >= maxScroll - 10) {
-          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' })
-        } else {
-          scrollRef.current.scrollBy({ left: 340, behavior: 'smooth' })
+    if (!scrollRef.current || testimonials.length === 0) return
+    const scrollContainer = scrollRef.current
+
+    const scroll = () => {
+      if (!isDragging.current) {
+        scrollContainer.scrollLeft += 0.8 // Speed of scroll
+        
+        // We duplicated items 3 times. Reset scroll when we reach 1/3 of total width
+        const singleSetWidth = scrollContainer.scrollWidth / 3
+        if (scrollContainer.scrollLeft >= singleSetWidth) {
+          scrollContainer.scrollLeft -= singleSetWidth
         }
       }
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [testimonials.length, isDragging])
+      animationFrameId.current = requestAnimationFrame(scroll)
+    }
+    
+    animationFrameId.current = requestAnimationFrame(scroll)
+    return () => cancelAnimationFrame(animationFrameId.current)
+  }, [testimonials.length])
 
   const onMouseDown = (e) => {
     if (!scrollRef.current) return
-    setIsDragging(true)
-    setStartX(e.pageX - scrollRef.current.offsetLeft)
-    setScrollLeft(scrollRef.current.scrollLeft)
+    isDragging.current = true
+    startX.current = e.pageX - scrollRef.current.offsetLeft
+    scrollLeft.current = scrollRef.current.scrollLeft
+    scrollRef.current.style.cursor = 'grabbing'
   }
-  const onMouseLeave = () => setIsDragging(false)
-  const onMouseUp = () => setIsDragging(false)
+  const onMouseLeave = () => { 
+    isDragging.current = false 
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab'
+  }
+  const onMouseUp = () => { 
+    isDragging.current = false 
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab'
+  }
   const onMouseMove = (e) => {
-    if (!isDragging || !scrollRef.current) return
-    e.preventDefault()
+    if (!isDragging.current || !scrollRef.current) return
+    e.preventDefault() // Prevents text selection while dragging
     const x = e.pageX - scrollRef.current.offsetLeft
-    const walk = (x - startX) * 2
-    scrollRef.current.scrollLeft = scrollLeft - walk
+    const walk = (x - startX.current) * 2
+    scrollRef.current.scrollLeft = scrollLeft.current - walk
   }
+
+  // Duplicate items for infinite scroll illusion
+  const displayItems = testimonials.length > 0 ? [...testimonials, ...testimonials, ...testimonials] : []
 
   return (
     <section style={{
-      padding: '1rem 1.5rem 6rem',
-      maxWidth: '1100px',
-      margin: '0 auto',
+      padding: '1rem 0 6rem',
+      width: '100vw',
+      maxWidth: '100%',
+      position: 'relative',
+      left: '50%',
+      right: '50%',
+      marginLeft: '-50vw',
+      marginRight: '-50vw',
+      overflow: 'hidden',
     }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '3rem', padding: '0 1.5rem' }}>
         <h2 style={{
           fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
           fontWeight: 700,
@@ -685,7 +708,7 @@ function TestimonialsSection() {
       </div>
       
       {testimonials.length === 0 ? (
-        <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+        <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontStyle: 'italic', padding: '0 1.5rem' }}>
           Les témoignages de nos membres apparaîtront ici.
         </div>
       ) : (
@@ -699,17 +722,15 @@ function TestimonialsSection() {
           style={{
             display: 'flex',
             gap: '1.5rem',
-            overflowX: 'auto',
-            paddingBottom: '2rem',
-            scrollBehavior: isDragging ? 'auto' : 'smooth',
-            cursor: isDragging ? 'grabbing' : 'grab',
-            msOverflowStyle: 'none',
-            scrollbarWidth: 'none',
+            overflowX: 'hidden', // Using JS drag + requestAnimationFrame instead of native scroll
+            padding: '0 1.5rem 2rem',
+            cursor: 'grab',
+            userSelect: 'none', // Prevent text selection globally in this container
+            WebkitUserSelect: 'none',
           }}
         >
-          <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
-          {testimonials.map((t, idx) => (
-            <div key={t.id} style={{ minWidth: '320px', maxWidth: '400px', flex: '0 0 auto' }}>
+          {displayItems.map((t, idx) => (
+            <div key={`${t.id}-${idx}`} style={{ minWidth: '320px', maxWidth: '400px', flex: '0 0 auto' }}>
               <TestimonialCard testimonial={t} index={idx} />
             </div>
           ))}
