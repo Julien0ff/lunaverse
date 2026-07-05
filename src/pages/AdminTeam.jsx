@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { db } from '../lib/firebase.js'
-import { doc, getDoc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, getDocs, deleteDoc, addDoc } from 'firebase/firestore'
 
 export default function AdminTeam({ onBack }) {
   const [activeTab, setActiveTab] = useState('equipe') // 'equipe' | 'idees'
