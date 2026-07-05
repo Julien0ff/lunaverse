@@ -614,6 +614,10 @@ function StatBox({ title, value, color }) {
    ============================== */
 function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState([])
+  const scrollRef = useRef(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
 
   useEffect(() => {
     const fetchAvis = async () => {
@@ -629,6 +633,38 @@ function TestimonialsSection() {
     }
     fetchAvis()
   }, [])
+
+  // Auto-scroll
+  useEffect(() => {
+    if (!scrollRef.current || testimonials.length <= 3) return
+    const interval = setInterval(() => {
+      if (!isDragging && scrollRef.current) {
+        const maxScroll = scrollRef.current.scrollWidth - scrollRef.current.clientWidth
+        if (scrollRef.current.scrollLeft >= maxScroll - 10) {
+          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' })
+        } else {
+          scrollRef.current.scrollBy({ left: 340, behavior: 'smooth' })
+        }
+      }
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [testimonials.length, isDragging])
+
+  const onMouseDown = (e) => {
+    if (!scrollRef.current) return
+    setIsDragging(true)
+    setStartX(e.pageX - scrollRef.current.offsetLeft)
+    setScrollLeft(scrollRef.current.scrollLeft)
+  }
+  const onMouseLeave = () => setIsDragging(false)
+  const onMouseUp = () => setIsDragging(false)
+  const onMouseMove = (e) => {
+    if (!isDragging || !scrollRef.current) return
+    e.preventDefault()
+    const x = e.pageX - scrollRef.current.offsetLeft
+    const walk = (x - startX) * 2
+    scrollRef.current.scrollLeft = scrollLeft - walk
+  }
 
   return (
     <section style={{
@@ -653,13 +689,29 @@ function TestimonialsSection() {
           Les témoignages de nos membres apparaîtront ici.
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.5rem',
-        }}>
+        <div 
+          ref={scrollRef}
+          onMouseDown={onMouseDown}
+          onMouseLeave={onMouseLeave}
+          onMouseUp={onMouseUp}
+          onMouseMove={onMouseMove}
+          className="no-scrollbar"
+          style={{
+            display: 'flex',
+            gap: '1.5rem',
+            overflowX: 'auto',
+            paddingBottom: '2rem',
+            scrollBehavior: isDragging ? 'auto' : 'smooth',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none',
+          }}
+        >
+          <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
           {testimonials.map((t, idx) => (
-            <TestimonialCard key={t.id} testimonial={t} index={idx} />
+            <div key={t.id} style={{ minWidth: '320px', maxWidth: '400px', flex: '0 0 auto' }}>
+              <TestimonialCard testimonial={t} index={idx} />
+            </div>
           ))}
         </div>
       )}
