@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import { db } from '../src/lib/firebase.js'
 import { doc, getDoc } from 'firebase/firestore'
 
@@ -28,7 +30,16 @@ export default async function handler(req, res) {
     const roleMap = {}
     rolesData.forEach(r => { roleMap[r.id] = r })
 
-    // 3. Read manual descriptions from Firebase
+    // 3. Read config from local JSON
+    let localConfig = {}
+    try {
+      const dataPath = path.join(process.cwd(), 'src', 'data', 'team_descriptions.json')
+      localConfig = JSON.parse(fs.readFileSync(dataPath, 'utf8'))
+    } catch(e) {
+      console.error('Error reading local config', e)
+    }
+
+    // Read manual descriptions from Firebase
     let descriptions = {}
     try {
       const docRef = doc(db, 'team', 'data')
@@ -41,24 +52,22 @@ export default async function handler(req, res) {
     }
 
     // 4. Define staff roles priority (ordered)
-    // Here we read the config from the json file. If you have specific roles you want to display,
-    // put their IDs in "staffRoles" array in team_descriptions.json
-    const STAFF_ROLES = descriptions.config?.staffRoles || [] 
+    const STAFF_ROLES = localConfig.config?.staffRoles || descriptions.config?.staffRoles || [] 
 
     const team = []
 
     members.forEach(m => {
-      // Check if user has any of the staff roles
-      const userStaffRoles = m.roles.filter(rId => STAFF_ROLES.includes(rId))
-      
-      // If user has no staff role, skip them (unless they are explicitly defined in the json config as a staff exception)
       const userId = m.user.id
-      const manualData = descriptions[userId]
+      const manualData = descriptions[userId] || localConfig[userId]
 
-      if (userStaffRoles.length === 0 && !manualData?.forceDisplay) return
+      // Check if user has any of the staff roles OR if their userId is directly in STAFF_ROLES
+      const userStaffRoles = m.roles.filter(rId => STAFF_ROLES.includes(rId))
+      const isStaffUser = STAFF_ROLES.includes(userId)
+      
+      if (userStaffRoles.length === 0 && !isStaffUser && !manualData?.forceDisplay) return
 
-      // Find the highest priority role
-      const primaryRoleId = STAFF_ROLES.find(rId => userStaffRoles.includes(rId))
+      // Find the highest priority role or UserID
+      const primaryRoleId = STAFF_ROLES.find(id => userStaffRoles.includes(id) || id === userId)
       const primaryRole = roleMap[primaryRoleId]
 
       const roleName = manualData?.role || primaryRole?.name || 'Staff'
