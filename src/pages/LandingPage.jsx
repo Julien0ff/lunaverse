@@ -630,8 +630,6 @@ function TestimonialsSection() {
     fetchAvis()
   }, [])
 
-  if (testimonials.length === 0) return null
-
   return (
     <section style={{
       padding: '4rem 1.5rem',
@@ -649,15 +647,22 @@ function TestimonialsSection() {
           Ce qu'ils en disent
         </h2>
       </div>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '1.5rem',
-      }}>
-        {testimonials.map((t, idx) => (
-          <TestimonialCard key={t.id} testimonial={t} index={idx} />
-        ))}
-      </div>
+      
+      {testimonials.length === 0 ? (
+        <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+          Les témoignages de nos membres apparaîtront ici.
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.5rem',
+        }}>
+          {testimonials.map((t, idx) => (
+            <TestimonialCard key={t.id} testimonial={t} index={idx} />
+          ))}
+        </div>
+      )}
     </section>
   )
 }
