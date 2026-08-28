@@ -623,11 +623,11 @@ function TestimonialsSection() {
   useEffect(() => {
     const fetchAvis = async () => {
       try {
-        const snap = await getDocs(collection(db, 'avis'))
-        const avisList = []
-        snap.forEach(doc => avisList.push({ id: doc.id, ...doc.data() }))
-        avisList.sort((a, b) => b.createdAt - a.createdAt)
-        setTestimonials(avisList)
+        const res = await fetch('/api/avis')
+        if (res.ok) {
+          const avisList = await res.json()
+          setTestimonials(avisList)
+        }
       } catch (e) {
         console.error(e)
       }

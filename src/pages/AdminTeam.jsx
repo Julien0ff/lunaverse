@@ -44,13 +44,12 @@ export default function AdminTeam({ onBack }) {
         setDescriptionsData(initial)
       }
 
-      // Fetch avis
-      const avisSnapshot = await getDocs(collection(db, 'avis'))
-      const fetchedAvis = []
-      avisSnapshot.forEach(doc => fetchedAvis.push({ id: doc.id, ...doc.data() }))
-      // Sort by latest
-      fetchedAvis.sort((a, b) => b.createdAt - a.createdAt)
-      setAvisList(fetchedAvis)
+      // Fetch avis via API for dynamic avatars
+      const avisRes = await fetch('/api/avis')
+      if (avisRes.ok) {
+        const fetchedAvis = await avisRes.json()
+        setAvisList(fetchedAvis)
+      }
 
     } catch (e) {
       console.error(e)
