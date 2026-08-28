@@ -11,27 +11,29 @@ export default async function handler(req, res) {
     const avisList = []
     snap.forEach(doc => avisList.push({ id: doc.id, ...doc.data() }))
 
-    // 2. Fetch members to dynamically update avatars
-    if (token && guildId) {
-      const membersRes = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members?limit=1000`, {
-        headers: { Authorization: `Bot ${token}` }
-      })
-      
-      if (membersRes.ok) {
-        const members = await membersRes.json()
-        const memberMap = {}
-        members.forEach(m => { memberMap[m.user.id] = m })
-
-        avisList.forEach(avis => {
-          if (avis.discordId && memberMap[avis.discordId]) {
-            const m = memberMap[avis.discordId]
-            if (m.user.avatar) {
-              avis.authorAvatar = `https://cdn.discordapp.com/avatars/${avis.discordId}/${m.user.avatar}.png?size=256`
+    // 2. Fetch users to dynamically update avatars
+    if (token) {
+      const fetchUserPromises = avisList.map(async (avis) => {
+        if (!avis.discordId) return;
+        try {
+          const userRes = await fetch(`https://discord.com/api/v10/users/${avis.discordId}`, {
+            headers: { Authorization: `Bot ${token}` }
+          });
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            if (userData.avatar) {
+              avis.authorAvatar = `https://cdn.discordapp.com/avatars/${avis.discordId}/${userData.avatar}.png?size=256`;
+            } else {
+              // Si pas d'avatar, on met l'avatar par défaut de Discord
+              avis.authorAvatar = `https://cdn.discordapp.com/embed/avatars/${(BigInt(avis.discordId) >> 22n) % 6n}.png`;
             }
-            // Mettre à jour le pseudo s'il a changé ? Optionnel, mais la demande est sur la photo
+            // avis.authorName = userData.global_name || userData.username; // Optionnel
           }
-        })
-      }
+        } catch (e) {
+          console.error(`Erreur fetch avatar pour ${avis.discordId}:`, e);
+        }
+      });
+      await Promise.all(fetchUserPromises);
     }
 
     // 3. Sort by most recent
