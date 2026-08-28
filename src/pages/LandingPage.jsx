@@ -36,10 +36,11 @@ const PROJECTS = [
     gradient: 'linear-gradient(135deg, #1e40af, #3b82f6)',
     logo: '/assets/school.png',
     fillBox: true,
+    badge: 'Saison 2 en septembre',
     links: [
-      { label: 'ENT', url: 'https://ent.lunaverse.fr' },
-      { label: 'Pronote', url: 'https://pronote.lunaverse.fr' },
-      { label: 'Inscription', url: 'https://discord.gg/8t8cQXM6eN' },
+      { label: 'ENT', url: '#', disabled: true },
+      { label: 'Pronote', url: '#', disabled: true },
+      { label: 'Inscription', url: '#', disabled: true },
     ],
   },
   {
@@ -51,7 +52,7 @@ const PROJECTS = [
     gradient: 'linear-gradient(135deg, #065f46, #10b981)',
     icon: <MinecraftLogo size={38} />,
     links: [],
-    badge: 'Bientôt',
+    badge: 'Octobre - Novembre',
   },
   {
     id: 'radio',
@@ -61,8 +62,9 @@ const PROJECTS = [
     gradient: 'linear-gradient(135deg, #92400e, #f59e0b)',
     logo: '/assets/lunafm.png',
     isRectangular: true,
+    badge: 'Fermé',
     links: [
-      { label: 'Écouter', url: 'https://lunafm.lunaverse.fr' },
+      { label: 'Écouter', url: '#', disabled: true },
     ],
   },
   {
@@ -74,7 +76,7 @@ const PROJECTS = [
     logo: '/assets/lemedia.png',
     isRectangular: true,
     links: [],
-    badge: 'En construction',
+    badge: 'Arrive bientôt',
   },
   {
     id: 'roblox',
@@ -497,8 +499,8 @@ function ProjectCard({ project, index }) {
           {project.links.map(link => (
             <a
               key={link.label}
-              href={link.url}
-              target="_blank"
+              href={link.disabled ? '#' : link.url}
+              target={link.disabled ? undefined : "_blank"}
               rel="noopener noreferrer"
               className="btn-secondary"
               style={{
@@ -506,6 +508,9 @@ function ProjectCard({ project, index }) {
                 fontSize: '0.75rem',
                 fontWeight: 500,
                 borderRadius: 'var(--radius-full)',
+                opacity: link.disabled ? 0.5 : 1,
+                cursor: link.disabled ? 'not-allowed' : 'pointer',
+                pointerEvents: link.disabled ? 'none' : 'auto',
               }}
             >
               {link.label}

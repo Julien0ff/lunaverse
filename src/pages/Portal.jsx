@@ -42,6 +42,7 @@ const TILES = [
     ),
     roles: ['member', 'admin'],
     category: 'school',
+    disabled: true,
   },
   {
     id: 'pronote',
@@ -54,6 +55,7 @@ const TILES = [
     fillBox: true,
     roles: ['member', 'admin'],
     category: 'school',
+    disabled: true,
   },
   {
     id: 'inscription',
@@ -72,6 +74,7 @@ const TILES = [
     ),
     roles: ['member', 'admin'],
     category: 'school',
+    disabled: true,
   },
   {
     id: 'recrutement',
@@ -90,6 +93,7 @@ const TILES = [
     ),
     roles: ['member', 'admin'],
     category: 'school',
+    disabled: true,
   },
   {
     id: 'lunafm',
@@ -142,11 +146,12 @@ const TILES = [
     ),
     roles: ['admin'],
     category: 'admin',
+    disabled: true,
   },
   {
     id: 'admin-team',
-    title: 'Gérer l\'équipe',
-    subtitle: 'Page Notre Équipe',
+    title: 'Équipe & Avis',
+    subtitle: 'Gérer le staff et les avis',
     url: null,
     internalAction: 'admin-team',
     color: '#00D2FF',
@@ -328,6 +333,7 @@ function PortalTile({ tile, delay, loaded, onNavigate }) {
   const [hovered, setHovered] = useState(false)
 
   const handleClick = () => {
+    if (tile.disabled) return;
     if (tile.internalAction) {
       onNavigate?.(tile.internalAction)
     } else if (tile.url && tile.url !== '#') {
@@ -338,7 +344,7 @@ function PortalTile({ tile, delay, loaded, onNavigate }) {
   return (
     <button
       onClick={handleClick}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => !tile.disabled && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
@@ -355,12 +361,13 @@ function PortalTile({ tile, delay, loaded, onNavigate }) {
         borderRadius: 'var(--radius-lg)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        cursor: (tile.url && tile.url !== '#') || tile.internalAction ? 'pointer' : 'default',
+        cursor: tile.disabled ? 'not-allowed' : ((tile.url && tile.url !== '#') || tile.internalAction ? 'pointer' : 'default'),
         transition: `all 400ms cubic-bezier(0.16, 1, 0.3, 1)`,
         transform: loaded
           ? (hovered ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)')
           : 'translateY(20px) scale(0.95)',
-        opacity: loaded ? 1 : 0,
+        opacity: tile.disabled ? (loaded ? 0.4 : 0) : (loaded ? 1 : 0),
+        pointerEvents: tile.disabled ? 'none' : 'auto',
         transitionDelay: `${delay}ms`,
         position: 'relative',
         overflow: 'hidden',
