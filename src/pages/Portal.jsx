@@ -42,7 +42,6 @@ const TILES = [
     ),
     roles: ['member', 'admin'],
     category: 'school',
-    disabled: true,
   },
   {
     id: 'pronote',
@@ -55,7 +54,6 @@ const TILES = [
     fillBox: true,
     roles: ['member', 'admin'],
     category: 'school',
-    disabled: true,
   },
   {
     id: 'inscription',
@@ -74,7 +72,6 @@ const TILES = [
     ),
     roles: ['member', 'admin'],
     category: 'school',
-    disabled: true,
   },
   {
     id: 'recrutement',

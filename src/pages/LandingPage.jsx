@@ -36,11 +36,11 @@ const PROJECTS = [
     gradient: 'linear-gradient(135deg, #1e40af, #3b82f6)',
     logo: '/assets/school.png',
     fillBox: true,
-    badge: 'Saison 2 en septembre',
+    badge: 'Saison 5',
     links: [
-      { label: 'ENT', url: '#', disabled: true },
-      { label: 'Pronote', url: '#', disabled: true },
-      { label: 'Inscription', url: '#', disabled: true },
+      { label: 'ENT', url: 'https://ent.lunaverse.fr' },
+      { label: 'Pronote', url: 'https://pronote.lunaverse.fr' },
+      { label: 'Inscription', url: 'https://discord.gg/8t8cQXM6eN' },
     ],
   },
   {
