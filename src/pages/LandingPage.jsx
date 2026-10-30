@@ -41,6 +41,7 @@ const PROJECTS = [
       { label: 'ENT', url: 'https://ent.lunaverse.fr' },
       { label: 'Pronote', url: 'https://pronote.lunaverse.fr' },
       { label: 'Inscription', url: 'https://discord.gg/8t8cQXM6eN' },
+      { label: 'Recrutement', url: 'https://recrutement.lunaverse.fr' },
     ],
   },
   {
@@ -88,6 +89,24 @@ const PROJECTS = [
     icon: <RobloxLogo />,
     links: [
       { label: 'Jouer', url: 'https://www.roblox.com/fr/games/79755605122846/LunaVerse' },
+    ],
+  },
+  {
+    id: 'hymne',
+    title: 'Hymne LunaVerse',
+    tagline: 'L\'identité musicale',
+    description: 'Découvrez l\'hymne officiel qui fait vibrer l\'univers et la communauté de LunaVerse.',
+    color: 'var(--color-accent-indigo)',
+    gradient: 'linear-gradient(135deg, #4338ca, #6366f1)',
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 18V5l12-2v13" />
+        <circle cx="6" cy="18" r="3" />
+        <circle cx="18" cy="16" r="3" />
+      </svg>
+    ),
+    links: [
+      { label: 'Écouter', url: 'https://hymne.lunaverse.fr' },
     ],
   },
 ]
@@ -870,6 +889,74 @@ function FooterSection({ onJoinClick }) {
             Discord
           </a>
         </div>
+      </div>
+
+      {/* Quick Links */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '1.75rem',
+        flexWrap: 'wrap',
+        marginBottom: '2rem',
+        fontSize: '0.85rem',
+      }}>
+        <a
+          href="https://rules.lunaverse.fr"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: 'var(--color-text-secondary)',
+            transition: 'color var(--transition-fast)',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--color-accent-cyan)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-secondary)'}
+        >
+          Règlement & CGU
+        </a>
+        <a
+          href="https://hymne.lunaverse.fr"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: 'var(--color-text-secondary)',
+            transition: 'color var(--transition-fast)',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--color-accent-indigo)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-secondary)'}
+        >
+          Hymne
+        </a>
+        <a
+          href="https://recrutement.lunaverse.fr"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: 'var(--color-text-secondary)',
+            transition: 'color var(--transition-fast)',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--color-accent-violet)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-secondary)'}
+        >
+          Recrutement
+        </a>
+        <a
+          href="https://discord.gg/8t8cQXM6eN"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: 'var(--color-text-secondary)',
+            transition: 'color var(--transition-fast)',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--color-accent-blue)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-secondary)'}
+        >
+          Discord
+        </a>
       </div>
 
       {/* Bottom credits */}

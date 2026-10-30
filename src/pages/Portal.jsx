@@ -25,7 +25,7 @@ function RobloxLogo({ size = 28 }) {
 }
 
 const TILES = [
-  // --- Member tiles ---
+  // --- Member tiles: School ---
   {
     id: 'ent',
     title: 'ENT',
@@ -77,7 +77,7 @@ const TILES = [
     id: 'recrutement',
     title: 'Recrutement',
     subtitle: 'Équipe pédagogique',
-    url: 'https://pentagonal-brisket-1d0.notion.site/7601d8435591470a85319e24add99806?pvs=105',
+    url: 'https://recrutement.lunaverse.fr',
     color: '#A855F7',
     gradient: 'linear-gradient(135deg, #7c3aed, #a855f7)',
     icon: (
@@ -90,7 +90,21 @@ const TILES = [
     ),
     roles: ['member', 'admin'],
     category: 'school',
-    disabled: true,
+  },
+
+  // --- Member tiles: Médias ---
+  {
+    id: 'lemedia',
+    title: 'LEmedia',
+    subtitle: 'Studio Webtélé — En construction',
+    url: '#',
+    color: '#EC4899',
+    gradient: 'linear-gradient(135deg, #be185d, #ec4899)',
+    logo: '/assets/lemedia.png',
+    isRectangular: true,
+    roles: ['member', 'admin'],
+    category: 'media',
+    badge: 'Bientôt',
   },
   {
     id: 'lunafm',
@@ -103,7 +117,28 @@ const TILES = [
     isRectangular: true,
     roles: ['member', 'admin'],
     category: 'media',
+    disabled: true,
+    badge: 'Fermé',
   },
+  {
+    id: 'hymne',
+    title: 'Hymne',
+    subtitle: 'Hymne officiel LunaVerse',
+    url: 'https://hymne.lunaverse.fr',
+    color: '#6366F1',
+    gradient: 'linear-gradient(135deg, #4338ca, #6366f1)',
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 18V5l12-2v13" />
+        <circle cx="6" cy="18" r="3" />
+        <circle cx="18" cy="16" r="3" />
+      </svg>
+    ),
+    roles: ['member', 'admin'],
+    category: 'media',
+  },
+
+  // --- Member tiles: Gaming ---
   {
     id: 'roblox',
     title: 'Roblox',
@@ -115,6 +150,8 @@ const TILES = [
     roles: ['member', 'admin'],
     category: 'gaming',
   },
+
+  // --- Member tiles: Communauté ---
   {
     id: 'discord',
     title: 'Discord',
@@ -123,6 +160,25 @@ const TILES = [
     color: '#5865F2',
     gradient: 'linear-gradient(135deg, #4338ca, #5865f2)',
     customIcon: <DiscordLogoFilled size={32} />,
+    roles: ['member', 'admin'],
+    category: 'community',
+  },
+  {
+    id: 'rules',
+    title: 'Règlement / CGU',
+    subtitle: 'Règles et conditions d\'utilisation',
+    url: 'https://rules.lunaverse.fr',
+    color: '#00D2FF',
+    gradient: 'linear-gradient(135deg, #0891b2, #06b6d4)',
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <line x1="10" y1="9" x2="8" y2="9" />
+      </svg>
+    ),
     roles: ['member', 'admin'],
     category: 'community',
   },
@@ -143,7 +199,6 @@ const TILES = [
     ),
     roles: ['admin'],
     category: 'admin',
-    disabled: true,
   },
   {
     id: 'admin-team',
@@ -163,19 +218,6 @@ const TILES = [
     ),
     roles: ['admin'],
     category: 'admin',
-  },
-  {
-    id: 'lemedia-admin',
-    title: 'LEmedia',
-    subtitle: 'Studio Webtélé — En construction',
-    url: '#',
-    color: '#EC4899',
-    gradient: 'linear-gradient(135deg, #be185d, #ec4899)',
-    logo: '/assets/lemedia.png',
-    isRectangular: true,
-    roles: ['admin'],
-    category: 'admin',
-    badge: 'Bientôt',
   },
 ]
 
